@@ -1,38 +1,40 @@
 import { Scene } from "phaser"
 
 export class Main extends Scene {
-
-    constructor(){
-        super()
-    }
-
     preload() {
-        this.load.setBaseURL('http://labs.phaser.io');
+        this.load.setBaseURL("http://labs.phaser.io")
 
-        this.load.image('sky', 'assets/skies/space3.png');
-        this.load.image('logo', 'assets/sprites/phaser3-logo.png');
-        this.load.image('red', 'assets/particles/red.png');
+        this.load.image("sky", "assets/skies/space3.png")
+        
+        this.load.image("ground", "assets/sprites/platform.png")
+        this.load.image("loop", "assets/sprites/loop.png")
+
+        this.load.spritesheet("dude", 
+            "assets/sprites/dude.png",
+            { frameWidth: 32, frameHeight: 48 }
+        )
     }
 
     create() {
-        this.add.image(400, 300, 'sky');
+        this.cursor = this.input.keyboard.createCursorKeys()
+        
+        this.add.image(400, 300, "sky")
 
-        var particles = this.add.particles('red');
+        this.platforms = this.physics.add.staticGroup()
+        this.platforms.create(200, 600, "ground")
+        this.platforms.create(600, 600, "ground")
 
-        var emitter = particles.createEmitter({
-            speed: 3,
-            scale: { start: 1, end: 0 },
-            blendMode: 'ADD',
+        const player = this.physics.add.sprite(100, 200, "dude")
+        player.setBounce(0.2)
+        player.setCollideWorldBounds(true)
 
-        });
+        this.cursor.down.onDown = () => {
+            console.log("down")
+        }
+    }
 
-        var logo = this.physics.add.image(400, 100, 'logo');
+    update() {
 
-        logo.setVelocity(100, 200);
-        logo.setBounce(1, 1);
-        logo.setCollideWorldBounds(true);
-
-        emitter.startFollow(logo);
     }
 
 }
