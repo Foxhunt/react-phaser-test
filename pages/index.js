@@ -14,6 +14,7 @@ const Index = () => {
     if(Phaser && scenes && !Game){
         setGame(new Phaser.Game({
             type: Phaser.AUTO,
+            parent: "phaser",
             width: 800,
             height: 600,
             physics: {
