@@ -20,9 +20,15 @@ export class Main extends Scene {
 
         this.add.image(400, 300, "sky")
 
-        this.platforms = this.physics.add.staticGroup()
+        this.platforms = this.physics.add.group({
+            immovable: true,
+            allowGravity: false,
+            frictionX: 0
+        })
         this.platforms.create(200, 600, "ground")
         this.platforms.create(600, 600, "ground")
+
+        this.platforms.getChildren().forEach(child => child.body.setFrictionX(0.5))
 
         this.player = this.physics.add.sprite(100, 200, "dude", 4)
         this.player.setBounce(0.2)
@@ -59,7 +65,7 @@ export class Main extends Scene {
             this.player.setVelocityX(160)
             this.player.anims.play("right", true)
         } else if (this.player.body.touching.down) {
-            this.player.setVelocityX(0)
+            // this.player.setVelocityX(0)
             this.player.anims.play("turn", true)
         }
 
