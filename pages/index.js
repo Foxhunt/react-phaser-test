@@ -1,31 +1,16 @@
 import React, { useState, useEffect } from "react"
 
 const Index = () => {
-    const [Phaser, setPhaser] = useState(null)
-    const [Game, setGame] = useState(null)
-    const [scenes, setScenes] = useState(null)
+    const [game, setGame] = useState(null)
 
-    // load Phaser
+    // load Game
     useEffect(() => {
-        setPhaser(require("phaser"))
-        setScenes(require("../scenes/"))
+        async function loadGame(){
+            const game = await import("../game")
+            setGame(game.default)
+        }
+        loadGame()
     }, [])
-
-    if(Phaser && scenes && !Game){
-        setGame(new Phaser.Game({
-            type: Phaser.AUTO,
-            parent: "phaser",
-            width: 800,
-            height: 600,
-            physics: {
-                default: "arcade",
-                arcade: {
-                    gravity: { y: 200 }
-                }
-            },
-            scene: new scenes.Main()
-        }))
-    }
 
     return (
         <div id="phaser"/>

@@ -52,15 +52,15 @@ export class Main extends Scene {
     }
 
     update() {
-        if (this.cursor.left.isDown && !this.cursor.right.isDown) {
+        if (this.cursor.left.isDown && !this.cursor.right.isDown && this.player.body.touching.down) {
             this.player.setVelocityX(-160)
             this.player.anims.play("left", true)
-        } else if (this.cursor.right.isDown && !this.cursor.left.isDown) {
+        } else if (this.cursor.right.isDown && !this.cursor.left.isDown && this.player.body.touching.down) {
             this.player.setVelocityX(160)
             this.player.anims.play("right", true)
-        } else {
+        } else if (this.player.body.touching.down) {
             this.player.setVelocityX(0)
-            this.player.anims.play("turn")
+            this.player.anims.play("turn", true)
         }
 
         if ((this.cursor.space.isDown || this.cursor.up.isDown) && this.player.body.touching.down) {
