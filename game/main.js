@@ -20,21 +20,19 @@ export class Main extends Scene {
 
         this.add.image(400, 300, "sky")
 
-        this.platforms = this.physics.add.group({
-            immovable: true,
-            allowGravity: false,
-            frictionX: 0
-        })
-        this.platforms.create(200, 600, "ground")
-        this.platforms.create(600, 600, "ground")
+        this.impact.world.setBounds()
+        
+        this.impact.add.image(200, 600, "ground").setFixedCollision().setGravity(0)
+        this.impact.add.image(600, 600, "ground").setFixedCollision().setGravity(0)
 
-        this.platforms.getChildren().forEach(child => child.body.setFrictionX(0.5))
+        this.player = this.impact.add.sprite(100, 200, "dude", 4).setOrigin(0, 0.15)
+        this.player.setActiveCollision()
+        this.player.setMaxVelocity(500)
+        this.player.setFriction(1000, 100)
 
-        this.player = this.physics.add.sprite(100, 200, "dude", 4)
-        this.player.setBounce(0.2)
-        this.player.setCollideWorldBounds(true)
-
-        this.physics.add.collider(this.player, this.platforms)
+        this.player.body.accelGround = 600
+        this.player.body.accelAir = 200
+        this.player.body.jumpSpeed = 500
 
         this.anims.create({
             key: "left",
@@ -58,19 +56,30 @@ export class Main extends Scene {
     }
 
     update() {
-        if (this.cursor.left.isDown && !this.cursor.right.isDown && this.player.body.touching.down) {
-            this.player.setVelocityX(-160)
+
+        const accel = this.player.body.standing ? this.player.body.accelGround : this.player.body.accelAir
+
+        if (this.cursor.left.isDown && !this.cursor.right.isDown) {
+            this.player.setAccelerationX(-accel)
             this.player.anims.play("left", true)
-        } else if (this.cursor.right.isDown && !this.cursor.left.isDown && this.player.body.touching.down) {
-            this.player.setVelocityX(160)
+        } else if (this.cursor.right.isDown && !this.cursor.left.isDown) {
+            this.player.setAccelerationX(accel)
             this.player.anims.play("right", true)
-        } else if (this.player.body.touching.down) {
-            // this.player.setVelocityX(0)
-            this.player.anims.play("turn", true)
+        } else {
+            this.player.setAccelerationX(0)
         }
 
-        if ((this.cursor.space.isDown || this.cursor.up.isDown) && this.player.body.touching.down) {
-            this.player.setVelocityY(-160)
+        if (this.player.vel.x === 0) {
+            this.player.anims.play("turn")
+        }
+
+        if (this.cursor.up.isDown && this.player.body.standing) {
+            this.player.setVelocityY(-this.player.body.jumpSpeed)
+        }
+
+        if (this.cursor.space.isDown) {
+            const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
+            this.player.setVelocityX(500 * direction)
         }
     }
 }
