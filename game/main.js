@@ -4,6 +4,8 @@ export class Main extends Scene {
 
     playerMaxMoveVelocity = 200
     playerMaxAtackVelocity = 1000
+    attackCoolDownTime = 500
+    attackTime = 50
     lastAtack = 0
 
     preload() {
@@ -68,7 +70,7 @@ export class Main extends Scene {
     }
 
     playerAttack(time) {
-        if (this.cursor.space.isDown && time - this.lastAtack > 500) {
+        if (this.cursor.space.isDown && time - this.lastAtack > this.attackCoolDownTime) {
             this.player.setMaxVelocity(this.playerMaxAtackVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxAtackVelocity * direction)
@@ -76,7 +78,7 @@ export class Main extends Scene {
             console.log("atack", this.player.maxVel.x, time)
         }
 
-        if (time - this.lastAtack > 100 && this.player.maxVel.x !== this.playerMaxMoveVelocity) {
+        if (this.player.maxVel.x !== this.playerMaxMoveVelocity && time - this.lastAtack > this.attackTime) {
             this.player.setMaxVelocity(this.playerMaxMoveVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxMoveVelocity * direction)
