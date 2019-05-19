@@ -3,7 +3,7 @@ import { Scene } from "phaser"
 export class Main extends Scene {
 
     playerMaxMoveVelocity = 200
-    playerMaxAtackVelocity = 1000
+    playerMaxAtackVelocity = 2000
     attackCoolDownTime = 500
     attackTime = 50
     lastAtack = 0
