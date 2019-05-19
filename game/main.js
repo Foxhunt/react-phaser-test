@@ -75,14 +75,16 @@ export class Main extends Scene {
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxAtackVelocity * direction)
             this.lastAtack = time
-            console.log("atack", this.player.maxVel.x, time)
+            if(this.impact.world.drawDebug)
+                console.log("atack", this.player.maxVel.x, time)
         }
 
         if (this.player.maxVel.x !== this.playerMaxMoveVelocity && time - this.lastAtack > this.attackTime) {
             this.player.setMaxVelocity(this.playerMaxMoveVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxMoveVelocity * direction)
-            console.log("normal", this.player.maxVel.x, time)
+            if(this.impact.world.drawDebug)
+                console.log("normal", this.player.maxVel.x, time)
         }
     }
 
