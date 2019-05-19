@@ -1,6 +1,11 @@
 import { Scene } from "phaser"
 
 export class Main extends Scene {
+
+    playerMaxMoveVelocity = 200
+    playerMaxAtackVelocity = 1000
+    lastAtack = 0
+
     preload() {
         this.load.setBaseURL("http://labs.phaser.io")
 
@@ -21,13 +26,13 @@ export class Main extends Scene {
         this.add.image(400, 300, "sky")
 
         this.impact.world.setBounds()
-        
+
         this.impact.add.image(200, 600, "ground").setFixedCollision().setGravity(0)
         this.impact.add.image(600, 600, "ground").setFixedCollision().setGravity(0)
 
-        this.player = this.impact.add.sprite(100, 200, "dude", 4).setOrigin(0, 0.15)
+        this.player = this.impact.add.sprite(100, 200, "dude", 5).setOrigin(0, 0.15)
         this.player.setActiveCollision()
-        this.player.setMaxVelocity(500)
+        this.player.setMaxVelocity(this.playerMaxMoveVelocity)
         this.player.setFriction(1000, 100)
 
         this.player.body.accelGround = 600
@@ -53,11 +58,35 @@ export class Main extends Scene {
             frameRate: 10,
             repeat: -1
         })
+
+        this.player.anims.play("right", true)
     }
 
-    update() {
+    update(time) {
+        this.playerMovement()
+        this.playerAtack(time)
+    }
 
-        const accel = this.player.body.standing ? this.player.body.accelGround : this.player.body.accelAir
+    playerAtack(time) {
+        if (this.cursor.space.isDown && time - this.lastAtack > 500) {
+            this.player.setMaxVelocity(this.playerMaxAtackVelocity)
+            const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
+            this.player.setVelocityX(this.playerMaxAtackVelocity * direction)
+            this.lastAtack = time
+            console.log("atack", this.player.maxVel.x, time)
+        }
+
+        if (time - this.lastAtack > 100 && this.player.maxVel.x !== this.playerMaxMoveVelocity) {
+            this.player.setMaxVelocity(this.playerMaxMoveVelocity)
+            const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
+            this.player.setVelocityX(this.playerMaxMoveVelocity * direction)
+            console.log("normal", this.player.maxVel.x, time)
+        }
+    }
+
+    playerMovement() {
+        const { standing, accelGround, accelAir } = this.player.body
+        const accel = standing ? accelGround : accelAir
 
         if (this.cursor.left.isDown && !this.cursor.right.isDown) {
             this.player.setAccelerationX(-accel)
@@ -69,17 +98,12 @@ export class Main extends Scene {
             this.player.setAccelerationX(0)
         }
 
-        if (this.player.vel.x === 0) {
-            this.player.anims.play("turn")
+        if (this.player.vel.x === 0 && this.player.anims.currentAnim) {
+            this.player.anims.setCurrentFrame(this.player.anims.currentAnim.frames[0])
         }
 
         if (this.cursor.up.isDown && this.player.body.standing) {
             this.player.setVelocityY(-this.player.body.jumpSpeed)
-        }
-
-        if (this.cursor.space.isDown) {
-            const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
-            this.player.setVelocityX(500 * direction)
         }
     }
 }
