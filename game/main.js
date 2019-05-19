@@ -24,6 +24,12 @@ export class Main extends Scene {
 
     create() {
         this.cursor = this.input.keyboard.createCursorKeys()
+        
+        this.input.gamepad.once("down", pad => {
+            console.log("found pad")
+            pad.setAxisThreshold(0.3)
+            this.gamepad = pad
+        })
 
         this.add.image(400, 300, "sky")
 
@@ -39,7 +45,7 @@ export class Main extends Scene {
 
         this.player.body.accelGround = 600
         this.player.body.accelAir = 200
-        this.player.body.jumpSpeed = 500
+        this.player.body.jumpSpeed = 400
 
         this.anims.create({
             key: "left",
@@ -70,7 +76,9 @@ export class Main extends Scene {
     }
 
     playerAttack(time) {
-        if (this.cursor.space.isDown && time - this.lastAtack > this.attackCoolDownTime) {
+        const attack = this.cursor.space.isDown || this.gamepad && (this.gamepad.B || this.gamepad.X)
+
+        if (attack && time - this.lastAtack > this.attackCoolDownTime) {
             this.player.setMaxVelocity(this.playerMaxAtackVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxAtackVelocity * direction)
@@ -92,10 +100,14 @@ export class Main extends Scene {
         const { standing, accelGround, accelAir } = this.player.body
         const accel = standing ? accelGround : accelAir
 
-        if (this.cursor.left.isDown && !this.cursor.right.isDown) {
+        const left = this.cursor.left.isDown || this.gamepad && this.gamepad.left
+        const right = this.cursor.right.isDown || this.gamepad && this.gamepad.right
+        const jump = this.cursor.up.isDown || this.gamepad && (this.gamepad.up || this.gamepad.A)
+
+        if (left && !right) {
             this.player.setAccelerationX(-accel)
             this.player.anims.play("left", true)
-        } else if (this.cursor.right.isDown && !this.cursor.left.isDown) {
+        } else if (right && !left) {
             this.player.setAccelerationX(accel)
             this.player.anims.play("right", true)
         } else {
@@ -106,7 +118,7 @@ export class Main extends Scene {
             this.player.anims.setCurrentFrame(this.player.anims.currentAnim.frames[0])
         }
 
-        if (this.cursor.up.isDown && this.player.body.standing) {
+        if (jump && this.player.body.standing) {
             this.player.setVelocityY(-this.player.body.jumpSpeed)
         }
     }

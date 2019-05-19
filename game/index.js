@@ -6,6 +6,9 @@ export default (new Phaser.Game({
     parent: "phaser",
     width: 800,
     height: 600,
+    input: {
+        gamepad: true
+    },
     physics: {
         default: "impact",
         impact: {
