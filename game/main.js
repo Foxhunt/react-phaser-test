@@ -64,10 +64,10 @@ export class Main extends Scene {
 
     update(time) {
         this.playerMovement()
-        this.playerAtack(time)
+        this.playerAttack(time)
     }
 
-    playerAtack(time) {
+    playerAttack(time) {
         if (this.cursor.space.isDown && time - this.lastAtack > 500) {
             this.player.setMaxVelocity(this.playerMaxAtackVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
