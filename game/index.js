@@ -1,7 +1,7 @@
 const Phaser = require("phaser")
 const { Main } = require("./main")
 
-export default (new Phaser.Game({
+export default new Phaser.Game({
     type: Phaser.AUTO,
     parent: "phaser",
     width: 800,
@@ -17,4 +17,4 @@ export default (new Phaser.Game({
         }
     },
     scene: new Main()
-}))
+})
