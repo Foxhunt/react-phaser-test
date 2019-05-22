@@ -3,7 +3,7 @@ import React, { useEffect } from "react"
 const Index = () => {
     // load Game
     useEffect(() => {
-        import("../game")
+        loadGame("2")
     }, [])
 
     return (
@@ -12,3 +12,16 @@ const Index = () => {
 }
 
 export default Index
+
+function loadGame(game){
+    switch(game){
+        case "1":
+            import("../game")
+        case "2":
+            import("../game2")
+        case "3":
+            import("../game3")
+        default:
+            console.log("noGame")
+    }
+}
