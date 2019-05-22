@@ -7,9 +7,7 @@ export default async() => {
     ])
 
     const scenes = sceneModues.map(
-        scene => new scene.default({
-            key: ( typeof scene.default.name )
-        })
+        scene => new scene.default()
     )
 
     return new Phaser.Game({

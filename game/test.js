@@ -8,6 +8,12 @@ export default class Test extends Scene {
     attackTime = 50
     lastAtack = 0
 
+    constructor(){
+        super({
+            key: "Test"
+        })
+    }
+
     preload() {
         this.load.setBaseURL("http://labs.phaser.io")
 
