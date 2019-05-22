@@ -3,7 +3,9 @@ import React, { useEffect } from "react"
 const Index = () => {
     // load Game
     useEffect(() => {
-        import("../game")
+        import("../game").then(
+            game => game.default()
+        )
     }, [])
 
     return (

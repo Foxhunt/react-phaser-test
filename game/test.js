@@ -1,6 +1,6 @@
 import { Scene } from "phaser"
 
-export default class Main extends Scene {
+export default class Test extends Scene {
 
     playerMaxMoveVelocity = 200
     playerMaxAtackVelocity = 2000
@@ -67,10 +67,10 @@ export default class Main extends Scene {
             repeat: -1
         })
 
-        this.player.anims.play("right", true)
+        this.player.anims.play("left", true)
 
         setTimeout(() => {
-            this.scene.start("Test")
+            this.scene.start("Main")
         }, 5000)
 
         console.log(this.scene.key)
