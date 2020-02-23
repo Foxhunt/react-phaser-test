@@ -9,7 +9,12 @@ const Host = () => {
 
     useEffect(() => {
         const peer = new Peer({
-            initiator: false
+            initiator: true,
+            config: {
+                iceServers: [{
+                    urls: 'stun:stun.sipgate.net:3478'
+                }]
+            }
         })
 
         peer.on('signal', data => {
@@ -44,7 +49,7 @@ const Host = () => {
         })
 
         firebase.firestore().collection('lobby').doc("client").onSnapshot(doc => {
-            if(doc.exists){
+            if (doc.exists) {
                 peer.signal(doc.data())
                 console.log("client snapshot")
             }

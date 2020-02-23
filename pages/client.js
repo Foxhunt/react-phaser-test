@@ -9,7 +9,12 @@ const Host = () => {
 
     useEffect(() => {
         const peer = new Peer({
-            initiator: true
+            initiator: false,
+            config: {
+                iceServers: [{
+                    urls: 'stun:stun.sipgate.net:3478'
+                }]
+            }
         })
 
         peer.on('signal', data => {
