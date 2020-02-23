@@ -6,6 +6,7 @@ import firebase from "../lib/firebase"
 const Host = () => {
     const [down, setDown] = useState(false)
     const [peerDown, setPeerDown] = useState(false)
+    const [connected, setConnected] = useState(false)
 
     useEffect(() => {
         const peer = new Peer({
@@ -33,14 +34,17 @@ const Host = () => {
                 setDown(false)
                 peer.send("up")
             })
+            setConnected(true)
         })
 
         peer.on("close", () => {
             console.log("peer closed")
+            setConnected(false)
         })
 
         peer.on("error", error => {
             console.error(error)
+            setConnected(false)
         })
 
         peer.on("data", data => {
@@ -57,6 +61,7 @@ const Host = () => {
     }, [])
 
     return <>
+        <div>{connected ? "" : "not "} connected</div>
         <div>self {down ? "down" : "up"}</div>
         <div>peer {peerDown ? "down" : "up"}</div>
     </>
