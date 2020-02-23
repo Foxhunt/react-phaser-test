@@ -9,7 +9,7 @@ export class Main extends Scene {
     lastAtack = 0
 
     preload() {
-        this.load.setBaseURL("http://labs.phaser.io")
+        this.load.setBaseURL("https://labs.phaser.io")
 
         this.load.image("sky", "assets/skies/space3.png")
 
