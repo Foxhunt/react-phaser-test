@@ -4,7 +4,13 @@ import Router from "next/router"
 import firebase from "../lib/firebase"
 
 function createLobby(name) {
-    return firebase.firestore().collection('lobbys').add({ name, host: "", players: [], timeStamp: new Date() })
+    const lobby = {
+        name,
+        hostId: firebase.auth().currentUser.uid,
+        timeStamp: new Date()
+    }
+
+    return firebase.firestore().collection('lobbys').add(lobby)
 }
 
 function deleteLobby(id) {
@@ -16,11 +22,15 @@ const Index = () => {
     const [lobbys, setLobbys] = useState([])
 
     useEffect(() => {
-        const unsub = firebase.firestore().collection('lobbys').orderBy("timeStamp", "desc").onSnapshot(snapshot => {
-            const lobbys = []
-            snapshot.forEach(doc => lobbys.push([doc.id, doc.data()]))
-            setLobbys(lobbys)
-        })
+        const unsub = firebase.firestore().collection('lobbys')
+            .where("playerCount", "<", 2)
+            .orderBy("playerCount")
+            .orderBy("timeStamp", "desc")
+            .onSnapshot(snapshot => {
+                const lobbys = []
+                snapshot.forEach(doc => lobbys.push([doc.id, doc.data()]))
+                setLobbys(lobbys)
+            })
 
         return () => {
             unsub()
