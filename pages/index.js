@@ -17,9 +17,9 @@ function deleteLobby(id) {
     firebase.firestore().collection('lobbys').doc(id).delete()
 }
 
-const Index = () => {
+const Index = ({ existingLobbys }) => {
     const [lobbyName, setLobbyName] = useState("")
-    const [lobbys, setLobbys] = useState([])
+    const [lobbys, setLobbys] = useState(existingLobbys)
 
     useEffect(() => {
         const unsub = firebase.firestore().collection('lobbys')
@@ -71,6 +71,21 @@ const Index = () => {
                 </div>)
         }
     </>
+}
+
+Index.getInitialProps = async () => {
+    const existingLobbys = []
+    const querySnapshot = await firebase.firestore().collection('lobbys')
+        .where("playerCount", "<", 2)
+        .orderBy("playerCount")
+        .orderBy("timeStamp", "desc")
+        .get()
+
+    querySnapshot.forEach(
+        doc => existingLobbys.push([doc.id, doc.data()])
+    )
+
+    return { existingLobbys }
 }
 
 export default Index
