@@ -8,7 +8,9 @@
             "FIREBASE_STORAGE_BUCKET": "@animation_test_firebase_storage_bucket",
             "FIREBASE_SENDER_ID": "@animation_test_firebase_sender_id",
             "FIREBASE_APP_ID": "@animation_test_firebase_app_id",
-            "FIREBASE_MEASUREMENT_ID": "@animation_test_firebase_measurement_id"
+            "FIREBASE_MEASUREMENT_ID": "@animation_test_firebase_measurement_id",
+            "TURN_USERNAME": "@turn_username",
+            "TURN_CREDENTIAL": "@turn_credential"
         }
     }
 }

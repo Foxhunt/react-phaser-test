@@ -8,6 +8,8 @@ module.exports = {
         FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
         FIREBASE_SENDER_ID: process.env.FIREBASE_SENDER_ID,
         FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
-        FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID
+        FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID,
+        TURN_USERNAME: process.env.TURN_USERNAME,
+        TURN_CREDENTIAL: process.env.TURN_CREDENTIAL
     },
   }
