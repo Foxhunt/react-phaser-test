@@ -1,12 +1,19 @@
 import { Scene } from "phaser"
 
 export class Main extends Scene {
-
     playerMaxMoveVelocity = 200
     playerMaxAtackVelocity = 2000
     attackCoolDownTime = 500
     attackTime = 50
-    lastAtack = 0
+    lastPlayerAtack = 0
+    lastEnemyAtack = 0
+    peer = undefined
+    enemyControls = [false, false, false, false]
+
+    constructor(peer) {
+        super()
+        this.peer = peer
+    }
 
     preload() {
         this.load.setBaseURL("https://labs.phaser.io")
@@ -24,7 +31,7 @@ export class Main extends Scene {
 
     create() {
         this.cursor = this.input.keyboard.createCursorKeys()
-        
+
         this.input.gamepad.once("down", pad => {
             console.log("found pad")
             pad.setAxisThreshold(0.3)
@@ -47,6 +54,15 @@ export class Main extends Scene {
         this.player.body.accelAir = 200
         this.player.body.jumpSpeed = 400
 
+        this.enemy = this.impact.add.sprite(100, 200, "dude", 5).setOrigin(0, 0.15)
+        this.enemy.setActiveCollision()
+        this.enemy.setMaxVelocity(this.playerMaxMoveVelocity)
+        this.enemy.setFriction(1000, 100)
+
+        this.enemy.body.accelGround = 600
+        this.enemy.body.accelAir = 200
+        this.enemy.body.jumpSpeed = 400
+
         this.anims.create({
             key: "left",
             frames: this.anims.generateFrameNumbers("dude", { start: 0, end: 3 }),
@@ -68,32 +84,54 @@ export class Main extends Scene {
         })
 
         this.player.anims.play("right", true)
+
+        this.peer.on("data", data => {
+            this.enemyControls = JSON.parse(data.toString())
+        })
+
+        this.peer.on("connect", () => {
+            this.connected = true
+        })
     }
 
     update(time) {
-        this.playerMovement()
-        this.playerAttack(time)
+        const movement = this.playerMovement()
+        const attack = this.playerAttack(time)
+
+        const [attackD, left, right, jump] = this.enemyControls
+        this.enemyMovement(left, right, jump)
+        this.enemyAttack(time, attackD)
+
+        const data = JSON.stringify([
+            ...attack,
+            ...movement
+        ])
+
+        if (this.connected) {
+            this.peer.send(data)
+        }
     }
 
     playerAttack(time) {
         const attack = this.cursor.space.isDown || this.gamepad && (this.gamepad.B || this.gamepad.X)
 
-        if (attack && time - this.lastAtack > this.attackCoolDownTime) {
+        if (attack && time - this.lastPlayerAtack > this.attackCoolDownTime) {
             this.player.setMaxVelocity(this.playerMaxAtackVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxAtackVelocity * direction)
-            this.lastAtack = time
-            if(this.impact.world.drawDebug)
+            this.lastPlayerAtack = time
+            if (this.impact.world.drawDebug)
                 console.log("atack", this.player.maxVel.x, time)
         }
 
-        if (this.player.maxVel.x !== this.playerMaxMoveVelocity && time - this.lastAtack > this.attackTime) {
+        if (this.player.maxVel.x !== this.playerMaxMoveVelocity && time - this.lastPlayerAtack > this.attackTime) {
             this.player.setMaxVelocity(this.playerMaxMoveVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxMoveVelocity * direction)
-            if(this.impact.world.drawDebug)
+            if (this.impact.world.drawDebug)
                 console.log("normal", this.player.maxVel.x, time)
         }
+        return [new Boolean(attack)]
     }
 
     playerMovement() {
@@ -120,6 +158,49 @@ export class Main extends Scene {
 
         if (jump && this.player.body.standing) {
             this.player.setVelocityY(-this.player.body.jumpSpeed)
+        }
+        return [new Boolean(left), new Boolean(right), new Boolean(jump)]
+    }
+
+    enemyAttack(time, attack) {
+        if (attack && time - this.lastEnemyAtack > this.attackCoolDownTime) {
+            this.enemy.setMaxVelocity(this.playerMaxAtackVelocity)
+            const direction = this.enemy.anims.currentAnim.key === "left" ? -1 : 1
+            this.enemy.setVelocityX(this.playerMaxAtackVelocity * direction)
+            this.lastEnemyAtack = time
+            if (this.impact.world.drawDebug)
+                console.log("atack", this.enemy.maxVel.x, time)
+        }
+
+        if (this.enemy.maxVel.x !== this.playerMaxMoveVelocity && time - this.lastEnemyAtack > this.attackTime) {
+            this.enemy.setMaxVelocity(this.playerMaxMoveVelocity)
+            const direction = this.enemy.anims.currentAnim.key === "left" ? -1 : 1
+            this.enemy.setVelocityX(this.playerMaxMoveVelocity * direction)
+            if (this.impact.world.drawDebug)
+                console.log("normal", this.enemy.maxVel.x, time)
+        }
+    }
+
+    enemyMovement(left, right, jump) {
+        const { standing, accelGround, accelAir } = this.enemy.body
+        const accel = standing ? accelGround : accelAir
+
+        if (left && !right) {
+            this.enemy.setAccelerationX(-accel)
+            this.enemy.anims.play("left", true)
+        } else if (right && !left) {
+            this.enemy.setAccelerationX(accel)
+            this.enemy.anims.play("right", true)
+        } else {
+            this.enemy.setAccelerationX(0)
+        }
+
+        if (this.enemy.vel.x === 0 && this.enemy.anims.currentAnim) {
+            this.enemy.anims.setCurrentFrame(this.enemy.anims.currentAnim.frames[0])
+        }
+
+        if (jump && this.enemy.body.standing) {
+            this.enemy.setVelocityY(-this.enemy.body.jumpSpeed)
         }
     }
 }
