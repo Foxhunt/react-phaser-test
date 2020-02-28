@@ -10,6 +10,7 @@ const Lobby = ({ lobbyId }) => {
     const [players, setPlayers] = useState([])
     const [peer, connected] = usePeer(lobbyId, playerId)
 
+    // setup firebase subscriptions
     useEffect(() => {
         const unsub = firebase.firestore().collection('lobbys').doc(lobbyId).onSnapshot(doc => {
             if (doc.exists && doc.data().players) {
@@ -23,6 +24,13 @@ const Lobby = ({ lobbyId }) => {
             }
         })
 
+        return () => {
+            unsub()
+        }
+    }, [])
+
+    // setup pointer events
+    useEffect(() => {
         function onPointerDown() {
             setDown(true)
         }
@@ -35,7 +43,6 @@ const Lobby = ({ lobbyId }) => {
         window.addEventListener("pointerup", onPointerUp)
 
         return () => {
-            unsub()
             window.removeEventListener("pointerdown", onPointerDown)
             window.removeEventListener("pointerup", onPointerUp)
         }
