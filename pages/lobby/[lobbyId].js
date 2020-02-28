@@ -66,7 +66,7 @@ const Lobby = ({ lobbyId }) => {
     // send down state
     useEffect(() => {
         if (connected) {
-            peer.send(down ? "down" : "up")
+            // peer.send(down ? "down" : "up")
         }
     }, [connected, down])
 
@@ -86,6 +86,17 @@ const Lobby = ({ lobbyId }) => {
         }
     }, [playerId])
 
+    // load and setup game
+    useEffect(() => {
+        async function loadGame() {
+            if (peer) {
+                const module = await import("../../game")
+                module.default(peer)
+            }
+        }
+        loadGame()
+    }, [peer])
+
     return <>
         <div>playerId {playerId}</div>
         <div>lobbyId {lobbyId}</div>
@@ -93,6 +104,7 @@ const Lobby = ({ lobbyId }) => {
         <div>self {down ? "down" : "up"}</div>
         <div>peer {peerDown ? "down" : "up"}</div>
         {players.map(player => <div key={player}>{player}</div>)}
+        <div id="phaser" />
     </>
 }
 
