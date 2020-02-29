@@ -89,13 +89,13 @@ const Lobby = ({ lobbyId }) => {
     // load and setup game
     useEffect(() => {
         async function loadGame() {
-            if (peer) {
+            if (connected) {
                 const module = await import("../../game")
                 module.default(peer)
             }
         }
         loadGame()
-    }, [peer])
+    }, [connected])
 
     return <>
         <div>playerId {playerId}</div>
