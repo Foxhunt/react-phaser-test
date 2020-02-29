@@ -50,7 +50,7 @@ export class Main extends Scene {
         this.impact.add.image(200, 600, "ground").setFixedCollision().setGravity(0)
         this.impact.add.image(600, 600, "ground").setFixedCollision().setGravity(0)
 
-        this.player = this.impact.add.sprite(100, 200, "dude", 5).setOrigin(0, 0.15)
+        this.player = this.impact.add.sprite(this.peer.initiator ? 700 : 100, 200, "dude", 5).setOrigin(0, 0.15)
         this.player.setActiveCollision()
         this.player.setMaxVelocity(this.playerMaxMoveVelocity)
         this.player.setFriction(1000, 100)
@@ -59,7 +59,7 @@ export class Main extends Scene {
         this.player.body.accelAir = 200
         this.player.body.jumpSpeed = 400
 
-        this.enemy = this.impact.add.sprite(100, 200, "dude", 5).setOrigin(0, 0.15)
+        this.enemy = this.impact.add.sprite(this.peer.initiator ? 100 : 700, 200, "dude", 5).setOrigin(0, 0.15)
         this.enemy.setActiveCollision()
         this.enemy.setMaxVelocity(this.playerMaxMoveVelocity)
         this.enemy.setFriction(1000, 100)
@@ -88,7 +88,13 @@ export class Main extends Scene {
             repeat: -1
         })
 
-        this.player.anims.play("right", true)
+        if (this.peer.initiator) {
+            this.player.anims.play("left", true)
+            this.enemy.anims.play("right", true)
+        } else {
+            this.player.anims.play("right", true)
+            this.enemy.anims.play("left", true)
+        }
 
         this.peer.on("data", data => {
             this.enemyControls = JSON.parse(data.toString())
