@@ -7,8 +7,15 @@ export class Main extends Scene {
     attackTime = 50
     lastPlayerAtack = 0
     lastEnemyAtack = 0
-    peer = undefined
-    enemyControls = [false, false, false, false]
+
+    peer = null
+    enemyControls = []
+    lastEnemyControls = [0, false, false, false, false]
+
+    sequenz = 0
+    lastSendData = []
+    positionIntervall = 200
+    lastPositionTime = 0
 
     constructor(peer) {
         super()
@@ -86,11 +93,7 @@ export class Main extends Scene {
         this.player.anims.play("right", true)
 
         this.peer.on("data", data => {
-            this.enemyControls = JSON.parse(data.toString())
-        })
-
-        this.peer.on("connect", () => {
-            this.connected = true
+            this.enemyControls.push(JSON.parse(data.toString()))
         })
     }
 
@@ -98,18 +101,38 @@ export class Main extends Scene {
         const movement = this.playerMovement()
         const attack = this.playerAttack(time)
 
-        const [attackD, left, right, jump] = this.enemyControls
+        const data = [
+            this.sequenz++,
+            ...attack,
+            ...movement
+        ]
+
+        const sendPosition = time - this.lastPositionTime > this.positionIntervall
+
+        if (sendPosition) {
+            data.push(
+                this.player.body.pos.x,
+                this.player.body.pos.y
+            )
+            this.lastPositionTime = time
+        }
+
+        if(this.inputDataChanged(data, this.lastSendData) || sendPosition){
+        this.peer.send(JSON.stringify(data))
+          this.lastSendData = data
+        }
+
+        this.lastEnemyControls = this.enemyControls.shift() || this.lastEnemyControls
+        const [enemySequenz, attackD, left, right, jump, x, y] = this.lastEnemyControls
         this.enemyMovement(left, right, jump)
         this.enemyAttack(time, attackD)
 
-        const data = JSON.stringify([
-            ...attack,
-            ...movement
-        ])
-
-        if (this.connected) {
-            this.peer.send(data)
+        if(x && y) {
+            this.enemy.body.pos.x = x
+            this.enemy.body.pos.y = y
         }
+
+        console.log("enemySequenz " + enemySequenz, "playerSequenz " + this.sequenz)
     }
 
     playerAttack(time) {
@@ -202,5 +225,14 @@ export class Main extends Scene {
         if (jump && this.enemy.body.standing) {
             this.enemy.setVelocityY(-this.enemy.body.jumpSpeed)
         }
+    }
+
+    inputDataChanged(data, lastSendData) {
+        return !(
+            data[1].valueOf() == lastSendData[1] &&
+            data[2].valueOf() == lastSendData[2] &&
+            data[3].valueOf() == lastSendData[3] &&
+            data[4].valueOf() == lastSendData[4]
+        )
     }
 }
