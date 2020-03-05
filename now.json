@@ -10,7 +10,9 @@
             "FIREBASE_APP_ID": "@animation_test_firebase_app_id",
             "FIREBASE_MEASUREMENT_ID": "@animation_test_firebase_measurement_id",
             "TURN_USERNAME": "@turn_username",
-            "TURN_CREDENTIAL": "@turn_credential"
+            "TURN_CREDENTIAL": "@turn_credential",
+            "TWILIO_ACCOUNT_SID": "@twilio_account_sid",
+            "TWILIO_AUTH_TOKEN": "@twilio_auth_token"
         }
     }
 }
