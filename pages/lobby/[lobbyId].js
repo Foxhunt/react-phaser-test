@@ -4,8 +4,6 @@ import firebase from "../../lib/firebase"
 import usePeer from "../../lib/hooks/usePeer"
 
 const Lobby = ({ lobbyId }) => {
-    const [down, setDown] = useState(false)
-    const [peerDown, setPeerDown] = useState(false)
     const [playerId, setPlayerId] = useState(undefined)
     const [players, setPlayers] = useState([])
     const [peer, connected] = usePeer(lobbyId, playerId)
@@ -28,47 +26,6 @@ const Lobby = ({ lobbyId }) => {
             unsub()
         }
     }, [])
-
-    // setup pointer events
-    useEffect(() => {
-        function onPointerDown() {
-            setDown(true)
-        }
-
-        function onPointerUp() {
-            setDown(false)
-        }
-
-        window.addEventListener("pointerdown", onPointerDown)
-        window.addEventListener("pointerup", onPointerUp)
-
-        return () => {
-            window.removeEventListener("pointerdown", onPointerDown)
-            window.removeEventListener("pointerup", onPointerUp)
-        }
-    }, [])
-
-    // set PeerDown state
-    useEffect(() => {
-        function onData(data) {
-            setPeerDown(data.toString() === "down")
-        }
-        if (peer) {
-            peer.on("data", onData)
-        }
-        return () => {
-            if (peer) {
-                peer.removeListener("data", onData)
-            }
-        }
-    }, [peer])
-
-    // send down state
-    useEffect(() => {
-        if (connected) {
-            // peer.send(down ? "down" : "up")
-        }
-    }, [connected, down])
 
     // join and leave lobby
     useEffect(() => {
@@ -101,8 +58,6 @@ const Lobby = ({ lobbyId }) => {
         <div>playerId {playerId}</div>
         <div>lobbyId {lobbyId}</div>
         <div>{connected ? "" : "not "} connected</div>
-        <div>self {down ? "down" : "up"}</div>
-        <div>peer {peerDown ? "down" : "up"}</div>
         {players.map(player => <div key={player}>{player}</div>)}
         <div id="phaser" />
     </>
