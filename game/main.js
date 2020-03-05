@@ -43,17 +43,20 @@ export class Main extends Scene {
             this.gamepad = pad
         })
 
-        this.add.image(400, 300, "sky")
+        this.add.tileSprite(this.game.canvas.width, this.game.canvas.height / 2, this.game.canvas.width * 2, this.game.canvas.height, "sky")
 
-        this.impact.world.setBounds()
+        this.impact.world.setBounds(0, 0, this.game.canvas.width * 2, this.game.canvas.height)
+        this.cameras.main.setBounds(0, 0, this.game.canvas.width * 2, this.game.canvas.height)
 
         this.impact.add.image(200, 600, "ground").setFixedCollision().setGravity(0)
-        this.impact.add.image(600, 600, "ground").setFixedCollision().setGravity(0)
+        this.impact.add.image(800, 600, "ground").setFixedCollision().setGravity(0)
 
         this.player = this.impact.add.sprite(this.peer.initiator ? 700 : 100, 200, "dude", 5).setOrigin(0, 0.15)
         this.player.setActiveCollision()
         this.player.setMaxVelocity(this.playerMaxMoveVelocity)
         this.player.setFriction(1000, 100)
+
+        this.cameras.main.startFollow(this.player, true, 0.1, 0.1)
 
         this.player.body.accelGround = 600
         this.player.body.accelAir = 200
