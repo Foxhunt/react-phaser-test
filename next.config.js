@@ -9,8 +9,6 @@ module.exports = {
         FIREBASE_SENDER_ID: process.env.FIREBASE_SENDER_ID,
         FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
         FIREBASE_MEASUREMENT_ID: process.env.FIREBASE_MEASUREMENT_ID,
-        TURN_USERNAME: process.env.TURN_USERNAME,
-        TURN_CREDENTIAL: process.env.TURN_CREDENTIAL,
         TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
         TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN
     },
