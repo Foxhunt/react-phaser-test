@@ -1,4 +1,4 @@
-import { Scene } from "phaser"
+import { Scene, Geom } from "phaser"
 
 export class Main extends Scene {
     playerMaxMoveVelocity = 200
@@ -51,7 +51,8 @@ export class Main extends Scene {
         this.impact.add.image(200, 600, "ground").setFixedCollision().setGravity(0)
         this.impact.add.image(800, 600, "ground").setFixedCollision().setGravity(0)
 
-        this.player = this.impact.add.sprite(this.peer.initiator ? 700 : 100, 200, "dude", 5).setOrigin(0, 0.15)
+        const playerX = this.peer.initiator ? this.game.canvas.width * 2 - 100 : 100
+        this.player = this.impact.add.sprite(playerX, 200, "dude", 5).setOrigin(.5, 0.15)
         this.player.setActiveCollision()
         this.player.setMaxVelocity(this.playerMaxMoveVelocity)
         this.player.setFriction(1000, 100)
@@ -62,7 +63,8 @@ export class Main extends Scene {
         this.player.body.accelAir = 200
         this.player.body.jumpSpeed = 400
 
-        this.enemy = this.impact.add.sprite(this.peer.initiator ? 100 : 700, 200, "dude", 5).setOrigin(0, 0.15)
+        const enemyX = this.peer.initiator ? 100 : this.game.canvas.width * 2 - 100
+        this.enemy = this.impact.add.sprite(enemyX, 200, "dude", 5).setOrigin(.5, 0.15)
         this.enemy.setActiveCollision()
         this.enemy.setMaxVelocity(this.playerMaxMoveVelocity)
         this.enemy.setFriction(1000, 100)
@@ -108,6 +110,12 @@ export class Main extends Scene {
         const movement = this.playerMovement()
         const attack = this.playerAttack(time)
 
+        const intersection = Geom.Rectangle.Intersection(this.player.getBounds(), this.enemy.getBounds())
+
+        if(intersection.width * intersection.height > 500){
+            console.log("intersected with " + (intersection.width * intersection.height))
+        }
+
         const data = [
             this.sequenz++,
             ...attack,
@@ -138,26 +146,30 @@ export class Main extends Scene {
             this.enemy.body.pos.x += xError * .5
             this.enemy.body.pos.y += yError * .5
 
-            console.log("enemySequenz " + enemySequenz, "playerSequenz " + this.sequenz)
+            //console.log("enemySequenz " + enemySequenz, "playerSequenz " + this.sequenz)
         }
     }
 
     playerAttack(time) {
         const attack = this.cursor.space.isDown || this.gamepad && (this.gamepad.B || this.gamepad.X)
 
+        // set attack velocity
         if (attack && time - this.lastPlayerAtack > this.attackCoolDownTime) {
             this.player.setMaxVelocity(this.playerMaxAtackVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxAtackVelocity * direction)
+            this.player.setCollidesNever()
             this.lastPlayerAtack = time
             if (this.impact.world.drawDebug)
                 console.log("atack", this.player.maxVel.x, time)
         }
 
+        // reset velocity
         if (this.player.maxVel.x !== this.playerMaxMoveVelocity && time - this.lastPlayerAtack > this.attackTime) {
             this.player.setMaxVelocity(this.playerMaxMoveVelocity)
             const direction = this.player.anims.currentAnim.key === "left" ? -1 : 1
             this.player.setVelocityX(this.playerMaxMoveVelocity * direction)
+            this.player.setActiveCollision()
             if (this.impact.world.drawDebug)
                 console.log("normal", this.player.maxVel.x, time)
         }
@@ -197,6 +209,7 @@ export class Main extends Scene {
             this.enemy.setMaxVelocity(this.playerMaxAtackVelocity)
             const direction = this.enemy.anims.currentAnim.key === "left" ? -1 : 1
             this.enemy.setVelocityX(this.playerMaxAtackVelocity * direction)
+            this.enemy.setCollidesNever()
             this.lastEnemyAtack = time
             if (this.impact.world.drawDebug)
                 console.log("atack", this.enemy.maxVel.x, time)
@@ -206,6 +219,7 @@ export class Main extends Scene {
             this.enemy.setMaxVelocity(this.playerMaxMoveVelocity)
             const direction = this.enemy.anims.currentAnim.key === "left" ? -1 : 1
             this.enemy.setVelocityX(this.playerMaxMoveVelocity * direction)
+            this.enemy.setActiveCollision()
             if (this.impact.world.drawDebug)
                 console.log("normal", this.enemy.maxVel.x, time)
         }
